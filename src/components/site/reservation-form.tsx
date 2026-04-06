@@ -12,11 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { openEmailComposer } from "@/lib/contact";
 import { formatCurrency } from "@/lib/format";
 import { reservationSchema } from "@/lib/schemas";
 import type { MeetupZoneData, PricingSnapshot, SiteSettingsData } from "@/lib/types";
 
-const ADMIN_EMAIL = "adriaticketadmin@gmail.com";
+const FALLBACK_CONTACT_EMAIL = "adriaticketadmin@gmail.com";
 
 interface ReservationFormProps {
   meetupZones: MeetupZoneData[];
@@ -24,6 +25,7 @@ interface ReservationFormProps {
   settings: SiteSettingsData;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function buildMailtoUrl(values: {
   fullName: string;
   email: string;
@@ -56,7 +58,44 @@ function buildMailtoUrl(values: {
     .join("\n");
 
   const body = encodeURIComponent(lines);
-  return `mailto:${ADMIN_EMAIL}?subject=${subject}&body=${body}`;
+  return `mailto:${FALLBACK_CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+function buildReservationEmailDraft(values: {
+  recipientEmail: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  quantityRequested: number;
+  meetupZoneName: string;
+  noteFromCustomer: string;
+  currentPrice: string;
+}) {
+  const subject = `Rezervacija - ${values.fullName} - ${values.quantityRequested}x Parter Zona 2`;
+
+  const lines = [
+    `Ime i prezime: ${values.fullName}`,
+    `E-mail kupca: ${values.email}`,
+    values.phone ? `Telefon: ${values.phone}` : null,
+    "",
+    "Kategorija: Parter Zona 2",
+    `Kolicina: ${values.quantityRequested} ${values.quantityRequested === 1 ? "ulaznica" : "ulaznice"}`,
+    `Aktuelna cijena: ${values.currentPrice}`,
+    `Zona preuzimanja: ${values.meetupZoneName}`,
+    "",
+    values.noteFromCustomer ? `Napomena: ${values.noteFromCustomer}` : null,
+    "",
+    "---",
+    "Zahtjev poslan s dino-kosevo.ba/rezervacija",
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
+
+  return {
+    to: values.recipientEmail,
+    subject,
+    body: lines,
+  };
 }
 
 export function ReservationForm({ meetupZones, pricing, settings }: ReservationFormProps) {
@@ -99,6 +138,7 @@ export function ReservationForm({ meetupZones, pricing, settings }: ReservationF
 
   const errors = form.formState.errors;
   const soldOutMode = settings.siteMode === SiteMode.SOLD_OUT || !pricing.allowReservations;
+  const recipientEmail = settings.contactEmail?.trim() || FALLBACK_CONTACT_EMAIL;
 
   const getMeetupZoneName = () =>
     meetupZones.find((z) => z.id === form.getValues("preferredMeetupZoneId"))?.name ?? "Po dogovoru";
@@ -140,11 +180,12 @@ export function ReservationForm({ meetupZones, pricing, settings }: ReservationF
     }
   });
 
-  // ── Fallback: open email app via hidden anchor (most cross-browser reliable) ──
+  // Open a Gmail compose draft first, then fall back to Gmail web or mailto.
   const onEmailFallback = () => {
     const values = form.getValues();
 
-    const mailtoUrl = buildMailtoUrl({
+    const draft = buildReservationEmailDraft({
+      recipientEmail,
       fullName: values.fullName || "(nije uneseno)",
       email: values.email ?? "",
       phone: values.phone ?? "",
@@ -154,13 +195,7 @@ export function ReservationForm({ meetupZones, pricing, settings }: ReservationF
       currentPrice: getCurrentPrice(),
     });
 
-    // Use hidden anchor — avoids page navigation and works on all browsers/mobile
-    const a = document.createElement("a");
-    a.href = mailtoUrl;
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => document.body.removeChild(a), 100);
+    openEmailComposer(draft);
   };
 
   const quantityOptions = Array.from({ length: 6 }, (_, i) => ({
@@ -361,7 +396,7 @@ export function ReservationForm({ meetupZones, pricing, settings }: ReservationF
           className="flex w-full items-center justify-center gap-2 rounded-[14px] border border-white/[0.07] bg-transparent px-4 py-3 text-xs text-zinc-500 transition-colors hover:border-white/[0.12] hover:text-zinc-300"
         >
           <Mail className="h-3.5 w-3.5" />
-          Problem s formom? Pošalji direktno e-mailom
+          Problem s formom? Otvori Gmail i pošalji direktno
         </button>
 
         <p className="text-center text-[10px] uppercase tracking-[0.16em] text-zinc-600">
