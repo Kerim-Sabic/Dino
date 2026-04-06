@@ -131,33 +131,36 @@ export function ReservationForm({ meetupZones, pricing, settings }: ReservationF
       if (response.ok) {
         router.push(`/hvala${result.leadId ? `?lead=${result.leadId}` : ""}`);
       } else {
-        form.setError("root", { message: result.error ?? "Greška. Pokušajte ponovo ili koristite e-mail." });
+        form.setError("root", { message: result.error ?? "Greška pri slanju. Koristite e-mail opciju ispod." });
       }
     } catch {
-      form.setError("root", { message: "Nema veze. Pokušajte ponovo ili koristite e-mail opciju ispod." });
+      form.setError("root", { message: "Greška veze. Koristite e-mail opciju ispod da pošaljete zahtjev direktno." });
     } finally {
       setIsSubmitting(false);
     }
   });
 
-  // ── Fallback: open email app ──
+  // ── Fallback: open email app via hidden anchor (most cross-browser reliable) ──
   const onEmailFallback = () => {
     const values = form.getValues();
-    if (!values.fullName || values.fullName.length < 2) {
-      form.setError("fullName", { message: "Unesite ime i prezime." });
-      return;
-    }
 
     const mailtoUrl = buildMailtoUrl({
-      fullName: values.fullName,
+      fullName: values.fullName || "(nije uneseno)",
       email: values.email ?? "",
       phone: values.phone ?? "",
-      quantityRequested: Number(values.quantityRequested),
+      quantityRequested: Number(values.quantityRequested) || 1,
       meetupZoneName: getMeetupZoneName(),
       noteFromCustomer: values.noteFromCustomer ?? "",
       currentPrice: getCurrentPrice(),
     });
-    window.location.href = mailtoUrl;
+
+    // Use hidden anchor — avoids page navigation and works on all browsers/mobile
+    const a = document.createElement("a");
+    a.href = mailtoUrl;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 100);
   };
 
   const quantityOptions = Array.from({ length: 6 }, (_, i) => ({
