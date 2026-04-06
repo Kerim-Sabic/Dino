@@ -274,7 +274,8 @@ Copy `.env.example` to `.env` and provide real values.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `DATABASE_URL` | Yes | Runtime Prisma connection string. For Netlify/serverless, use the Supabase transaction pooler on port `6543` with `pgbouncer=true`. |
+| `DIRECT_URL` | Yes | Direct or session-mode connection for Prisma migrations and schema operations |
 | `AUTH_SECRET` | Yes | Secret for secure session/auth flows |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Public base URL for canonical and metadata generation |
 | `SEED_SUPER_ADMIN_EMAIL` | Yes | Initial super-admin email |
@@ -284,7 +285,8 @@ Copy `.env.example` to `.env` and provide real values.
 Example:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dino_kosevo"
+DATABASE_URL="postgresql://postgres.xpqqurngwcgqbiceopfo:[YOUR-PASSWORD]@aws-1-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgresql://postgres.xpqqurngwcgqbiceopfo:[YOUR-PASSWORD]@aws-1-eu-central-1.pooler.supabase.com:5432/postgres"
 AUTH_SECRET="replace-with-a-long-random-secret"
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 SEED_SUPER_ADMIN_EMAIL="admin@dino-kosevo.ba"
@@ -320,6 +322,12 @@ or
 npm run db:migrate
 ```
 
+If you already have committed migrations and want to apply them in a production-like environment, use:
+
+```bash
+npm run db:deploy
+```
+
 ### 4. Seed content and the initial admin
 
 ```bash
@@ -348,6 +356,7 @@ Open:
 | `npm run typecheck` | Run TypeScript without emitting |
 | `npm run db:push` | Push Prisma schema to the database |
 | `npm run db:migrate` | Run Prisma development migrations |
+| `npm run db:deploy` | Apply committed Prisma migrations in production |
 | `npm run db:seed` | Seed initial content and admin user |
 | `npm run db:studio` | Open Prisma Studio |
 
@@ -371,25 +380,31 @@ The seed script creates the baseline operating environment:
 Recommended hosting stack:
 
 - app hosting: `Vercel`
-- database: `Neon` or `Supabase Postgres`
+- database: `Supabase Postgres` or `Neon`
 
 ### Production checklist
 
 1. Create the production PostgreSQL database.
-2. Set `DATABASE_URL`, `AUTH_SECRET`, and `NEXT_PUBLIC_SITE_URL`.
+2. Set `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, and `NEXT_PUBLIC_SITE_URL`.
 3. Generate Prisma client:
 
 ```bash
 npx prisma generate
 ```
 
-4. Apply the schema:
+4. Apply the schema.
+
+For the very first setup without migrations, you can use:
 
 ```bash
 npm run db:push
 ```
 
-or use your production-safe migration workflow.
+For a production-safe workflow with committed migrations, use:
+
+```bash
+npm run db:deploy
+```
 
 5. Seed the initial content:
 
@@ -400,6 +415,12 @@ npm run db:seed
 6. Deploy the app.
 7. Sign in at `/admin/prijava`.
 8. Rotate the seeded admin password immediately in any shared or production environment.
+
+### Supabase connection notes
+
+- Use the Supabase transaction pooler (`6543`) for `DATABASE_URL` in serverless/runtime environments.
+- Use the Supabase session pooler (`5432`) or direct connection for `DIRECT_URL`.
+- Prisma migrations and schema operations should go through `DIRECT_URL`, not the transaction pooler.
 
 ## Verification
 

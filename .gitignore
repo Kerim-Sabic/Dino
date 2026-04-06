@@ -29,12 +29,22 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.next-dev*.log
+
+# local screenshots / scratch exports
+.tmp-*.png
+tmp-*.png
+homepage-*.png
+reservation-*.png
 
 # env files (can opt-in for committing if needed)
 .env*
 
 # vercel
 .vercel
+
+# local Prisma sqlite scratch db
+/prisma/prisma/
 
 # typescript
 *.tsbuildinfo
