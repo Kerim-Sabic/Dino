@@ -1,78 +1,287 @@
+<div align="center">
+
 # Dino Merlin Koševo Rezervacije
 
-Production-ready Next.js platform for a private physical-ticket reservation/resale business focused on **Dino Merlin Koševo** and a single category: **Parter Zona 2**.
+<p>
+  A high-trust reservation platform for <strong>physical-ticket resale in Sarajevo</strong>.<br />
+  Built for one category, one clear process, and one next step.
+</p>
 
-The product includes:
+<p>
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js_16-App_Router-111111?style=flat-square&logo=nextdotjs&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-Strict-1f6feb?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Prisma" src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma&logoColor=white" />
+  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat-square&logo=postgresql&logoColor=white" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind-v4-0f172a?style=flat-square&logo=tailwindcss&logoColor=38bdf8" />
+  <img alt="Vercel Ready" src="https://img.shields.io/badge/Vercel-Ready-111111?style=flat-square&logo=vercel&logoColor=white" />
+</p>
 
-- premium Bosnian public website
-- private admin auth with RBAC
-- CRM pipeline for leads
-- inventory tracking
-- tiered pricing engine with overrides
-- CMS for homepage, FAQ, trust content, meetup zones, and legal docs
-- blog / SEO content system
-- Prisma + PostgreSQL data model
-- seed data and Vercel-ready setup
+</div>
 
-## Stack
+---
 
-- Next.js 16 App Router
-- TypeScript
-- Tailwind CSS v4
-- shadcn-style UI primitives
-- Prisma ORM
-- PostgreSQL
-- Zod
-- React Hook Form
-- server actions + route handlers
+> This is **not an official ticketing platform**.  
+> It is an **independent private reservation and resale system** for physical tickets, with **manual confirmation** and **in-person handoff in Sarajevo**.
 
-## Core product model
+## The Idea
 
-- This is **not** an official ticketing platform.
-- This is **not** checkout/ecommerce.
-- Users submit a **reservation request**.
-- Seller confirms manually through WhatsApp / phone / Instagram.
-- Transaction completes **only in person in Sarajevo**.
-- Tickets are **physical only**.
-- No online payment.
+Most reseller pages feel rushed, noisy, and suspicious.
 
-## Main routes
+This product is built around the opposite approach:
 
-Public:
+- one ticket category
+- one public price signal
+- one calm trust story
+- one short reservation flow
+- one operational system behind it
 
-- `/`
-- `/ulaznice`
-- `/rezervacija`
-- `/kako-funkcionise`
-- `/zasto-nama-vjeruju`
-- `/faq`
-- `/kontakt`
-- `/blog`
-- `/blog/[slug]`
-- `/hvala`
-- `/rasprodano`
-- `/uslovi-koristenja`
-- `/politika-privatnosti`
-- `/odricanje-odgovornosti`
+It is designed to feel less like a classified ad and more like a focused private service.
 
-Admin:
+## At a Glance
 
-- `/admin/prijava`
-- `/admin`
-- `/admin/leadovi`
-- `/admin/leadovi/[id]`
-- `/admin/inventar`
-- `/admin/cijene`
-- `/admin/sadrzaj`
-- `/admin/blog`
-- `/admin/blog/novi`
-- `/admin/blog/[id]`
-- `/admin/postavke`
-- `/admin/revizija`
+<table>
+  <tr>
+    <td valign="top" width="25%">
+      <strong>Public Site</strong><br />
+      Premium Bosnian website built to convert cautious buyers without pretending to be official.
+    </td>
+    <td valign="top" width="25%">
+      <strong>Reservation Flow</strong><br />
+      Mobile-first lead capture with validation, anti-spam, attribution, and pricing snapshots.
+    </td>
+    <td valign="top" width="25%">
+      <strong>Admin System</strong><br />
+      CRM, inventory, pricing, CMS, blog, audit logs, and role-based access in one app.
+    </td>
+    <td valign="top" width="25%">
+      <strong>SEO Layer</strong><br />
+      Structured metadata, blog architecture, legal pages, and local-intent content.
+    </td>
+  </tr>
+</table>
 
-## Environment
+## Built for This Exact Business Model
 
-Copy `.env.example` to `.env` and fill in real values:
+This is not a generic event template and not a normal ecommerce build.
+
+It is engineered around these fixed rules:
+
+| Constraint | Implementation |
+| --- | --- |
+| One category only | `Parter Zona 2` |
+| Limited quantity | around `50` physical tickets |
+| No online payment | payment happens only in person |
+| No digital delivery | handoff is physical, live, and local |
+| No instant checkout | users submit a reservation request |
+| Manual confirmation | seller follows up through WhatsApp, phone, or Instagram |
+| Final fulfillment | only in Sarajevo |
+
+That makes the product closer to a **conversion-first reservation operating system** than a standard ticket storefront.
+
+## Product Experience
+
+### Public website
+
+- premium dark visual system
+- Bosnian-first copy
+- strong trust and anti-anxiety messaging
+- pricing-tier presentation built around scarcity without spam
+- mobile-first reservation funnel
+- clear separation from any official ticketing channel
+
+### Reservation flow
+
+- short form shaped around buyer intent, not internal admin habits
+- anti-spam honeypot
+- minimum completion-time check
+- fingerprint-based rate limiting
+- UTM / referrer / landing-page capture
+- price snapshot at time of submission
+- thank-you redirect after successful request
+
+### Internal operating system
+
+- secure admin sign-in
+- role-based access:
+  - `SUPER_ADMIN`
+  - `ADMIN`
+  - `EDITOR`
+- CRM pipeline
+- notes and communication logs
+- meetup planning
+- price locks and final sold-price history
+- inventory actions and stock adjustments
+- CMS editing
+- blog management
+- audit logging
+
+## Pricing Engine
+
+The seeded ladder matches the business requirements exactly:
+
+| Tier | Range | Price |
+| --- | --- | --- |
+| Tier 1 | First 5 | `90 KM` |
+| Tier 2 | Next 10 | `109 KM` |
+| Tier 3 | Next 10 | `119 KM` |
+| Tier 4 | Next 10 | `129 KM` |
+| Tier 5 | Next 10 | `139 KM` |
+| Tier 6 | Final 5 | `149 KM` |
+
+The engine also supports:
+
+- manual public override
+- promo override
+- scarcity override
+- public urgency override
+- public price-message override
+- lead-level promised price / price lock
+- historical final sold-price preservation
+
+## SEO Architecture
+
+The content layer is built for realistic local-intent discovery, not keyword stuffing.
+
+Implemented:
+
+- route-level metadata
+- canonical URLs
+- Open Graph and Twitter cards
+- `robots.txt`
+- `sitemap.xml`
+- JSON-LD for:
+  - organization
+  - breadcrumb
+  - FAQ
+  - article
+- Bosnian-first content structure
+- blog posts designed to support conversion pages through internal linking
+
+Target search themes include:
+
+- `dino merlin kosevo ulaznice`
+- `dino merlin sarajevo ulaznice`
+- `dino merlin parter zona 2`
+- `fizicke ulaznice sarajevo`
+- `rezervacija ulaznica sarajevo`
+- `preuzimanje ulaznica sarajevo`
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 16 App Router |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| UI approach | shadcn-style primitives |
+| Forms | React Hook Form |
+| Validation | Zod |
+| ORM | Prisma |
+| Database | PostgreSQL |
+| Auth/session | secure custom auth/session flow |
+| Markdown rendering | React Markdown + remark-gfm |
+
+## Architecture
+
+```text
+src/
+  app/
+    (site)/                Public pages
+    admin/                 Protected admin system
+    api/reservations/      Reservation submission endpoint
+  components/
+    site/                  Public UI components
+    ui/                    Reusable UI primitives
+  lib/
+    actions/               Admin-side mutations
+    auth/                  Session and permission helpers
+    metadata/              SEO helpers
+    pricing/               Tier and override logic
+    public-data/           Public content/data loaders
+prisma/
+  schema.prisma            Full database schema
+  seed.ts                  Initial content and first admin seed
+```
+
+## Data Model
+
+Core Prisma models:
+
+- `User`
+- `Lead`
+- `LeadStatusEvent`
+- `LeadNote`
+- `CommunicationLog`
+- `InventoryPool`
+- `InventoryMovement`
+- `PricingConfig`
+- `PriceTier`
+- `PriceLock`
+- `SiteSettings`
+- `HomepageContent`
+- `FaqItem`
+- `Testimonial`
+- `TrustBadge`
+- `MeetupZone`
+- `LegalDocument`
+- `BlogPost`
+- `ReservationAttempt`
+- `AuditLog`
+
+Schema file: [prisma/schema.prisma](./prisma/schema.prisma)
+
+## Route Map
+
+### Public
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Homepage and primary conversion funnel |
+| `/ulaznice` | Public offer page for Parter Zona 2 |
+| `/rezervacija` | Reservation request page |
+| `/kako-funkcionise` | Manual confirmation and handoff explanation |
+| `/zasto-nama-vjeruju` | Trust page |
+| `/faq` | Objection handling and process clarity |
+| `/kontakt` | Contact channels and meetup guidance |
+| `/blog` | Content hub |
+| `/blog/[slug]` | Blog detail pages |
+| `/hvala` | Thank-you page |
+| `/rasprodano` | Sold-out / waitlist page |
+| `/uslovi-koristenja` | Terms |
+| `/politika-privatnosti` | Privacy policy |
+| `/odricanje-odgovornosti` | Disclaimer |
+
+### Admin
+
+| Route | Purpose |
+| --- | --- |
+| `/admin/prijava` | Sign-in screen |
+| `/admin` | Dashboard |
+| `/admin/leadovi` | Lead list |
+| `/admin/leadovi/[id]` | Lead detail page |
+| `/admin/inventar` | Inventory management |
+| `/admin/cijene` | Pricing controls |
+| `/admin/sadrzaj` | CMS editing |
+| `/admin/blog` | Blog management |
+| `/admin/blog/novi` | Create blog post |
+| `/admin/blog/[id]` | Edit blog post |
+| `/admin/postavke` | Site settings |
+| `/admin/revizija` | Audit logs |
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and provide real values.
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `AUTH_SECRET` | Yes | Secret for secure session/auth flows |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Public base URL for canonical and metadata generation |
+| `SEED_SUPER_ADMIN_EMAIL` | Yes | Initial super-admin email |
+| `SEED_SUPER_ADMIN_PASSWORD` | Yes | Initial super-admin password |
+| `SEED_SUPER_ADMIN_NAME` | Yes | Initial super-admin name |
+
+Example:
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dino_kosevo"
@@ -83,23 +292,23 @@ SEED_SUPER_ADMIN_PASSWORD="replace-with-a-unique-local-password"
 SEED_SUPER_ADMIN_NAME="Sarajevo Rezervacije"
 ```
 
-## Local setup
+## Quick Start
 
-1. Install dependencies:
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-2. Generate Prisma client:
+### 2. Generate Prisma client
 
 ```bash
 npx prisma generate
 ```
 
-3. Push schema or run migrations:
+### 3. Create the database schema
 
-For production, prefer committed Prisma migrations. Use `db:push` only for local development or disposable previews.
+For production, prefer committed Prisma migrations. Use `db:push` for local development or disposable environments.
 
 ```bash
 npm run db:push
@@ -111,109 +320,99 @@ or
 npm run db:migrate
 ```
 
-4. Seed initial content and first super admin:
+### 4. Seed content and the initial admin
 
 ```bash
 npm run db:seed
 ```
 
-5. Start dev server:
+### 5. Run the app
 
 ```bash
 npm run dev
 ```
 
-## Seeded business data
+Open:
 
-The seed creates:
+- public site: `http://localhost:3000`
+- admin sign-in: `http://localhost:3000/admin/prijava`
+
+## Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create the production build |
+| `npm run start` | Run the production server |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run TypeScript without emitting |
+| `npm run db:push` | Push Prisma schema to the database |
+| `npm run db:migrate` | Run Prisma development migrations |
+| `npm run db:seed` | Seed initial content and admin user |
+| `npm run db:studio` | Open Prisma Studio |
+
+## Seeded Content
+
+The seed script creates the baseline operating environment:
 
 - one inventory pool for `Parter Zona 2`
-- tiered pricing:
-  - first 5: `90 KM`
-  - next 10: `109 KM`
-  - next 10: `119 KM`
-  - next 10: `129 KM`
-  - next 10: `139 KM`
-  - final 5: `149 KM`
-- homepage Bosnian copy
-- FAQ items
+- the required pricing ladder
+- Bosnian homepage copy
+- FAQs
 - testimonials
 - trust badges
 - meetup zones
 - legal documents
 - starter blog posts
-- first `SUPER_ADMIN` account
+- the first `SUPER_ADMIN`
 
-## Admin capabilities
+## Deployment
 
-- secure credential login
-- roles:
-  - `SUPER_ADMIN`
-  - `ADMIN`
-  - `EDITOR`
-- CRM pipeline with lead detail pages
-- notes and communication logs
-- inventory movements
-- pricing config and tier editing
-- homepage and site settings CMS
-- FAQ / testimonial / trust badge editing
-- meetup zone editing
-- legal page editing
-- blog CRUD
-- audit log review
-- user management for super admins
+Recommended hosting stack:
 
-## Reservation flow
+- app hosting: `Vercel`
+- database: `Neon` or `Supabase Postgres`
 
-Public reservation submission includes:
+### Production checklist
 
-- Zod validation
-- anti-spam honeypot
-- minimum completion-time check
-- rate limiting via `ReservationAttempt`
-- UTM / referrer / landing-page capture
-- server-side price snapshot at submission time
-
-## SEO implementation
-
-- semantic App Router pages
-- route-level metadata
-- canonical URLs
-- Open Graph and Twitter cards
-- `robots.txt`
-- `sitemap.xml`
-- JSON-LD:
-  - organization
-  - breadcrumb
-  - FAQ
-  - article
-- Bosnian-first content structure
-- blog cluster with internal links to conversion pages
-
-## Production deploy
-
-Recommended:
-
-- Vercel for app hosting
-- Neon or Supabase Postgres for database
-
-Deployment checklist:
-
-1. Create production Postgres database.
+1. Create the production PostgreSQL database.
 2. Set `DATABASE_URL`, `AUTH_SECRET`, and `NEXT_PUBLIC_SITE_URL`.
-3. Run `npx prisma generate`.
-4. Run migrations or `npm run db:push`.
-5. Run `npm run db:seed`.
-6. Deploy app.
-7. Sign in to `/admin/prijava`.
-8. Use a unique `SEED_SUPER_ADMIN_PASSWORD` before any shared or production deploy. The seed script only tolerates the fallback password in local development.
+3. Generate Prisma client:
 
-## Verification completed
+```bash
+npx prisma generate
+```
 
-The current codebase has been verified with:
+4. Apply the schema:
+
+```bash
+npm run db:push
+```
+
+or use your production-safe migration workflow.
+
+5. Seed the initial content:
+
+```bash
+npm run db:seed
+```
+
+6. Deploy the app.
+7. Sign in at `/admin/prijava`.
+8. Rotate the seeded admin password immediately in any shared or production environment.
+
+## Verification
+
+The codebase has been verified with:
 
 ```bash
 npm run typecheck
 npm run lint
 npm run build
 ```
+
+## Notes
+
+- Public copy is intentionally Bosnian and written for a Sarajevo / BiH audience.
+- The product is intentionally optimized for trust, clarity, and operational control over ecommerce complexity.
+- Public messaging must never imply official affiliation with the artist, organizers, venue, or official ticketing partners.
