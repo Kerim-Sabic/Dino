@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { PublishStatus } from "@prisma/client";
 import {
   defaultBlogPosts,
@@ -36,7 +37,7 @@ function decimalToNumber(value: unknown) {
   return Number(value || 0);
 }
 
-export async function getSiteSettings() {
+export const getSiteSettings = cache(async function getSiteSettings() {
   return withDbFallback<SiteSettingsData>(
     async () => {
       const settings = await prisma.siteSettings.findUnique({ where: { id: "default" } });
@@ -44,9 +45,9 @@ export async function getSiteSettings() {
     },
     defaultSiteSettings,
   );
-}
+});
 
-export async function getHomepageContent() {
+export const getHomepageContent = cache(async function getHomepageContent() {
   return withDbFallback<HomepageContentData>(
     async () => {
       const content = await prisma.homepageContent.findUnique({ where: { id: "default" } });
@@ -63,9 +64,9 @@ export async function getHomepageContent() {
     },
     defaultHomepageContent,
   );
-}
+});
 
-export async function getTrustBadges() {
+export const getTrustBadges = cache(async function getTrustBadges() {
   return withDbFallback<TrustBadgeData[]>(
     async () => {
       const items = await prisma.trustBadge.findMany({
@@ -77,9 +78,9 @@ export async function getTrustBadges() {
     },
     defaultTrustBadges,
   );
-}
+});
 
-export async function getTestimonials() {
+export const getTestimonials = cache(async function getTestimonials() {
   return withDbFallback<TestimonialData[]>(
     async () => {
       const items = await prisma.testimonial.findMany({
@@ -91,9 +92,9 @@ export async function getTestimonials() {
     },
     defaultTestimonials,
   );
-}
+});
 
-export async function getFaqItems() {
+export const getFaqItems = cache(async function getFaqItems() {
   return withDbFallback<FaqItemData[]>(
     async () => {
       const items = await prisma.faqItem.findMany({
@@ -105,9 +106,9 @@ export async function getFaqItems() {
     },
     defaultFaqItems,
   );
-}
+});
 
-export async function getMeetupZones() {
+export const getMeetupZones = cache(async function getMeetupZones() {
   return withDbFallback<MeetupZoneData[]>(
     async () => {
       const items = await prisma.meetupZone.findMany({
@@ -119,9 +120,9 @@ export async function getMeetupZones() {
     },
     defaultMeetupZones,
   );
-}
+});
 
-export async function getLegalDocument(slug: string) {
+export const getLegalDocument = cache(async function getLegalDocument(slug: string) {
   return withDbFallback<LegalDocumentData | null>(
     async () => {
       const document = await prisma.legalDocument.findUnique({ where: { slug } });
@@ -129,9 +130,9 @@ export async function getLegalDocument(slug: string) {
     },
     defaultLegalDocuments.find((item) => item.slug === slug) ?? null,
   );
-}
+});
 
-export async function getBlogPosts() {
+export const getBlogPosts = cache(async function getBlogPosts() {
   return withDbFallback<BlogPostData[]>(
     async () => {
       const items = await prisma.blogPost.findMany({
@@ -144,9 +145,9 @@ export async function getBlogPosts() {
     },
     defaultBlogPosts,
   );
-}
+});
 
-export async function getBlogPostBySlug(slug: string) {
+export const getBlogPostBySlug = cache(async function getBlogPostBySlug(slug: string) {
   return withDbFallback<BlogPostData | null>(
     async () => {
       const item = await prisma.blogPost.findUnique({ where: { slug } });
@@ -155,9 +156,9 @@ export async function getBlogPostBySlug(slug: string) {
     },
     defaultBlogPosts.find((post) => post.slug === slug) ?? null,
   );
-}
+});
 
-export async function getPriceTiers() {
+export const getPriceTiers = cache(async function getPriceTiers() {
   return withDbFallback<PriceTierData[]>(
     async () => {
       const tiers = await prisma.priceTier.findMany({ orderBy: { sortOrder: "asc" } });
@@ -170,9 +171,9 @@ export async function getPriceTiers() {
     },
     defaultPriceTiers,
   );
-}
+});
 
-export async function getPricingConfig() {
+export const getPricingConfig = cache(async function getPricingConfig() {
   return withDbFallback<PricingConfigData>(
     async () => {
       const config = await prisma.pricingConfig.findUnique({ where: { id: "default" } });
@@ -190,9 +191,9 @@ export async function getPricingConfig() {
     },
     defaultPricingConfig,
   );
-}
+});
 
-export async function getInventoryPool() {
+export const getInventoryPool = cache(async function getInventoryPool() {
   return withDbFallback<InventoryPoolData>(
     async () => {
       const pool = await prisma.inventoryPool.findUnique({ where: { slug: defaultInventoryPool.slug } });
@@ -200,9 +201,9 @@ export async function getInventoryPool() {
     },
     defaultInventoryPool,
   );
-}
+});
 
-export async function getPublicSiteData() {
+export const getPublicSiteData = cache(async function getPublicSiteData() {
   const [settings, homepage, trustBadges, testimonials, faqs, meetupZones, priceTiers, pricingConfig, inventoryPool, blogPosts] =
     await Promise.all([
       getSiteSettings(),
@@ -237,4 +238,4 @@ export async function getPublicSiteData() {
     pricing,
     blogPosts,
   };
-}
+});
