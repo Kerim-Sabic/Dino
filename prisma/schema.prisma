@@ -1,0 +1,395 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  RESERVED
+  MEETUP_ARRANGED
+  SOLD
+  CANCELED
+  NO_SHOW
+}
+
+enum ContactMethod {
+  WHATSAPP
+  PHONE
+  INSTAGRAM
+  EMAIL
+}
+
+enum CommunicationChannel {
+  WHATSAPP
+  PHONE
+  INSTAGRAM
+  EMAIL
+  INTERNAL_NOTE
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum InventoryActionType {
+  RESERVE
+  RELEASE
+  SOLD
+  ADJUSTMENT
+  RETURN
+}
+
+enum SiteMode {
+  LIVE
+  SOLD_OUT
+  WAITLIST
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  name               String
+  email              String              @unique
+  phone              String?
+  passwordHash       String
+  role               UserRole            @default(EDITOR)
+  isActive           Boolean             @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  assignedLeads      Lead[]              @relation("LeadAssignee")
+  authoredStatusLogs LeadStatusEvent[]   @relation("LeadStatusEventActor")
+  leadNotes          LeadNote[]          @relation("LeadNoteAuthor")
+  communicationLogs  CommunicationLog[]  @relation("CommunicationAuthor")
+  inventoryMovements InventoryMovement[] @relation("InventoryActor")
+  priceLocks         PriceLock[]         @relation("PriceLockActor")
+  auditLogs          AuditLog[]          @relation("AuditActor")
+  blogPosts          BlogPost[]          @relation("BlogAuthor")
+}
+
+model Lead {
+  id                     String              @id @default(cuid())
+  fullName               String
+  phone                  String?
+  whatsapp               String?
+  instagramHandle        String?
+  email                  String?
+  noteFromCustomer       String?
+  quantityRequested      Int                 @default(1)
+  preferredContactMethod ContactMethod       @default(EMAIL)
+  preferredMeetupZoneId  String?
+  preferredMeetupZone    MeetupZone?         @relation(fields: [preferredMeetupZoneId], references: [id], onDelete: SetNull)
+  source                 String?
+  landingPage            String?
+  referrer               String?
+  utmSource              String?
+  utmMedium              String?
+  utmCampaign            String?
+  utmContent             String?
+  utmTerm                String?
+  ipHash                 String?
+  userAgent              String?
+  priceSeen              Decimal             @db.Decimal(10, 2)
+  priceLabelSeen         String?
+  promisedPrice          Decimal?            @db.Decimal(10, 2)
+  promisedPriceNote      String?
+  finalSoldPrice         Decimal?            @db.Decimal(10, 2)
+  reservationExpiresAt   DateTime?
+  meetupAt               DateTime?
+  status                 LeadStatus          @default(NEW)
+  statusChangedAt        DateTime            @default(now())
+  assignedAdminId        String?
+  assignedAdmin          User?               @relation("LeadAssignee", fields: [assignedAdminId], references: [id], onDelete: SetNull)
+  consentAt              DateTime
+  submittedAt            DateTime            @default(now())
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  statusEvents           LeadStatusEvent[]
+  notes                  LeadNote[]
+  communicationLogs      CommunicationLog[]
+  priceLocks             PriceLock[]
+  inventoryMovements     InventoryMovement[]
+}
+
+model LeadStatusEvent {
+  id          String      @id @default(cuid())
+  leadId      String
+  lead        Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  fromStatus  LeadStatus?
+  toStatus    LeadStatus
+  note        String?
+  changedById String?
+  changedBy   User?       @relation("LeadStatusEventActor", fields: [changedById], references: [id], onDelete: SetNull)
+  changedAt   DateTime    @default(now())
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation("LeadNoteAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  body      String
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model CommunicationLog {
+  id         String               @id @default(cuid())
+  leadId     String
+  lead       Lead                 @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId   String?
+  author     User?                @relation("CommunicationAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  channel    CommunicationChannel
+  direction  MessageDirection     @default(OUTBOUND)
+  summary    String
+  happenedAt DateTime             @default(now())
+}
+
+model InventoryPool {
+  id                String              @id @default(cuid())
+  slug              String              @unique
+  name              String
+  categoryLabel     String
+  totalStock        Int
+  reservedCount     Int                 @default(0)
+  soldCount         Int                 @default(0)
+  isPublicVisible   Boolean             @default(true)
+  publicDisplayMode String              @default("RANGE")
+  publicLabel       String?
+  lowStockThreshold Int                 @default(12)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  movements         InventoryMovement[]
+}
+
+model InventoryMovement {
+  id            String              @id @default(cuid())
+  poolId        String
+  pool          InventoryPool       @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  leadId        String?
+  lead          Lead?               @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  actorId       String?
+  actor         User?               @relation("InventoryActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actionType    InventoryActionType
+  quantity      Int
+  note          String?
+  priceAtAction Decimal?            @db.Decimal(10, 2)
+  createdAt     DateTime            @default(now())
+}
+
+model PricingConfig {
+  id                         String      @id @default("default")
+  currency                   String      @default("KM")
+  manualOverrideEnabled      Boolean     @default(false)
+  manualOverridePrice        Decimal?    @db.Decimal(10, 2)
+  manualOverrideLabel        String?
+  promoOverrideEnabled       Boolean     @default(false)
+  promoOverridePrice         Decimal?    @db.Decimal(10, 2)
+  promoOverrideLabel         String?
+  scarcityOverrideEnabled    Boolean     @default(false)
+  scarcityOverridePrice      Decimal?    @db.Decimal(10, 2)
+  scarcityOverrideLabel      String?
+  showNextPrice              Boolean     @default(true)
+  publicUrgencyOverride      String?
+  publicPriceMessageOverride String?
+  allowReservations          Boolean     @default(true)
+  createdAt                  DateTime    @default(now())
+  updatedAt                  DateTime    @updatedAt
+  tiers                      PriceTier[]
+}
+
+model PriceTier {
+  id              String        @id @default(cuid())
+  pricingConfigId String
+  pricingConfig   PricingConfig @relation(fields: [pricingConfigId], references: [id], onDelete: Cascade)
+  sortOrder       Int
+  name            String
+  startSoldCount  Int
+  endSoldCount    Int
+  price           Decimal       @db.Decimal(10, 2)
+  publicLabel     String?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model PriceLock {
+  id         String    @id @default(cuid())
+  leadId     String
+  lead       Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  price      Decimal   @db.Decimal(10, 2)
+  note       String?
+  expiresAt  DateTime?
+  lockedById String?
+  lockedBy   User?     @relation("PriceLockActor", fields: [lockedById], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+}
+
+model SiteSettings {
+  id                    String   @id @default("default")
+  siteMode              SiteMode @default(LIVE)
+  siteName              String
+  businessLabel         String
+  city                  String
+  whatsappNumber        String
+  phoneNumber           String
+  instagramHandle       String
+  contactEmail          String?
+  businessHours         String
+  responseTimeText      String
+  primaryMeetupText     String
+  meetupGuidance        String
+  announcementEnabled   Boolean  @default(false)
+  announcementText      String?
+  heroTicketLabel       String
+  seoDefaultTitle       String
+  seoDefaultDescription String
+  seoDefaultImage       String?
+  shortDisclaimer       String
+  soldOutTitle          String
+  soldOutDescription    String
+  waitlistTitle         String
+  waitlistDescription   String
+  handoffCount          Int      @default(0)
+  fastResponseMinutes   Int      @default(15)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model HomepageContent {
+  id                  String   @id @default("default")
+  heroEyebrow         String
+  heroTitle           String
+  heroDescription     String
+  heroPrimaryLabel    String
+  heroSecondaryLabel  String
+  heroTrustLine       String
+  scarcityTitle       String
+  scarcityDescription String
+  whyReserveTitle     String
+  whyReserveIntro     String
+  whyReserveItems     Json
+  processTitle        String
+  processIntro        String
+  trustTitle          String
+  trustIntro          String
+  ticketsSectionTitle String
+  ticketsSectionIntro String
+  ctaStripTitle       String
+  ctaStripDescription String
+  updatedAt           DateTime @updatedAt
+}
+
+model FaqItem {
+  id         String   @id @default(cuid())
+  question   String
+  answer     String
+  section    String?
+  sortOrder  Int
+  isFeatured Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  name       String
+  city       String
+  quote      String
+  rating     Int      @default(5)
+  sortOrder  Int
+  isFeatured Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model TrustBadge {
+  id        String   @id @default(cuid())
+  label     String
+  detail    String
+  sortOrder Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MeetupZone {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  sortOrder   Int
+  isPrimary   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  leads       Lead[]
+}
+
+model LegalDocument {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  excerpt         String
+  contentMarkdown String
+  updatedAt       DateTime @updatedAt
+}
+
+model BlogPost {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  excerpt         String
+  contentMarkdown String
+  seoTitle        String?
+  seoDescription  String?
+  tags            Json
+  readTimeMinutes Int           @default(4)
+  featured        Boolean       @default(false)
+  status          PublishStatus @default(DRAFT)
+  publishedAt     DateTime?
+  authorId        String?
+  author          User?         @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model ReservationAttempt {
+  id              String   @id @default(cuid())
+  fingerprintHash String
+  landingPage     String?
+  wasAccepted     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now())
+}
