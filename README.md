@@ -179,6 +179,7 @@ Target search themes include:
 | ORM | Prisma |
 | Database | PostgreSQL |
 | Auth/session | secure custom auth/session flow |
+| Supabase client layer | `@supabase/supabase-js` + `@supabase/ssr` |
 | Markdown rendering | React Markdown + remark-gfm |
 
 ## Architecture
@@ -276,6 +277,8 @@ Copy `.env.example` to `.env` and provide real values.
 | --- | --- | --- |
 | `DATABASE_URL` | Yes | Runtime Prisma connection string. For Netlify/serverless, use the Supabase transaction pooler on port `6543` with `pgbouncer=true`. |
 | `DIRECT_URL` | Yes | Direct or session-mode connection for Prisma migrations and schema operations |
+| `NEXT_PUBLIC_SUPABASE_URL` | Optional | Supabase project URL for browser/server SSR helpers |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Optional | Supabase publishable key for browser/server SSR helpers |
 | `AUTH_SECRET` | Yes | Secret for secure session/auth flows |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Public base URL for canonical and metadata generation |
 | `SEED_SUPER_ADMIN_EMAIL` | Yes | Initial super-admin email |
@@ -287,6 +290,8 @@ Example:
 ```env
 DATABASE_URL="postgresql://postgres.xpqqurngwcgqbiceopfo:[YOUR-PASSWORD]@aws-1-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
 DIRECT_URL="postgresql://postgres.xpqqurngwcgqbiceopfo:[YOUR-PASSWORD]@aws-1-eu-central-1.pooler.supabase.com:5432/postgres"
+NEXT_PUBLIC_SUPABASE_URL="https://xpqqurngwcgqbiceopfo.supabase.co"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_279-MVKurVsKqlS0osQpkQ_Et8igFTK"
 AUTH_SECRET="replace-with-a-long-random-secret"
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 SEED_SUPER_ADMIN_EMAIL="admin@dino-kosevo.ba"
@@ -421,6 +426,17 @@ npm run db:seed
 - Use the Supabase transaction pooler (`6543`) for `DATABASE_URL` in serverless/runtime environments.
 - Use the Supabase session pooler (`5432`) or direct connection for `DIRECT_URL`.
 - Prisma migrations and schema operations should go through `DIRECT_URL`, not the transaction pooler.
+
+### Supabase client utilities
+
+The repo now includes Supabase SSR/browser helpers:
+
+- [client helper](./src/lib/supabase/client.ts)
+- [server helper](./src/lib/supabase/server.ts)
+- [proxy refresh helper](./src/lib/supabase/proxy.ts)
+- [root proxy](./proxy.ts)
+
+These are additive. They prepare the app for Supabase browser or SSR features without replacing the current Prisma-backed data layer or the existing custom admin auth flow.
 
 ## Verification
 

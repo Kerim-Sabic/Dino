@@ -35,7 +35,7 @@ export default async function SiteLayout({
       <SiteHeader settings={settings} />
       <main>{children}</main>
       <SiteFooter settings={settings} />
-      <MobileStickyCta settings={settings} pricing={pricing} />
+      <MobileStickyCta pricing={pricing} />
     </div>
   );
 }

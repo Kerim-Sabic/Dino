@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { CheckCircle2, MapPin, Shield, Ticket, Wallet } from "lucide-react";
+import { MapPin, Shield, Ticket, Wallet } from "lucide-react";
 import { SiteMode } from "@prisma/client";
 import { ReservationForm } from "@/components/site/reservation-form";
 import { IndependenceNotice } from "@/components/site/independence-notice";
