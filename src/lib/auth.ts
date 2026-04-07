@@ -10,6 +10,21 @@ import type { SessionUser } from "@/lib/types";
 
 const sessionDurationSeconds = 60 * 60 * 24 * 7;
 
+function getSeedSuperAdminLogin() {
+  const email = process.env.SEED_SUPER_ADMIN_EMAIL?.toLowerCase().trim();
+  const password = process.env.SEED_SUPER_ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    return null;
+  }
+
+  return {
+    email,
+    password,
+    name: process.env.SEED_SUPER_ADMIN_NAME || "Sarajevo Rezervacije",
+  };
+}
+
 function getAuthSecret() {
   const secret = process.env.AUTH_SECRET;
 
@@ -132,17 +147,48 @@ export async function loginAdmin(email: string, password: string) {
     throw new Error("DATABASE_NOT_CONFIGURED");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase().trim() },
+  const normalizedEmail = email.toLowerCase().trim();
+  const seedLogin = getSeedSuperAdminLogin();
+  const isSeedSuperAdminLogin = Boolean(
+    seedLogin && normalizedEmail === seedLogin.email && password === seedLogin.password,
+  );
+
+  let user = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
   });
 
-  if (!user || !user.isActive) {
+  if (!user && isSeedSuperAdminLogin && seedLogin) {
+    user = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        name: seedLogin.name,
+        passwordHash: await hashPassword(password),
+        role: UserRole.SUPER_ADMIN,
+        isActive: true,
+      },
+    });
+  }
+
+  if (!user) {
     return null;
   }
 
-  const isValid = await verifyPassword(password, user.passwordHash);
+  let isValid = await verifyPassword(password, user.passwordHash);
 
-  if (!isValid) {
+  if ((!isValid || !user.isActive || user.role !== UserRole.SUPER_ADMIN) && isSeedSuperAdminLogin && seedLogin) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name: seedLogin.name,
+        passwordHash: await hashPassword(password),
+        role: UserRole.SUPER_ADMIN,
+        isActive: true,
+      },
+    });
+    isValid = true;
+  }
+
+  if (!user.isActive || !isValid) {
     return null;
   }
 

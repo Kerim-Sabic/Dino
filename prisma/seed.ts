@@ -150,7 +150,6 @@ async function main() {
 
   console.log("Seed completed.");
   console.log(`Super admin: ${email}`);
-  console.log(`Initial password: ${resolvedPassword}`);
 }
 
 main()

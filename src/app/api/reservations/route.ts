@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   }
 
   const elapsed = Date.now() - Number(payload.startedAt || Date.now());
-  if (elapsed < 2500) {
+  if (elapsed < 500) {
     return NextResponse.json({ error: "Zahtjev izgleda nevažeći. Pokušajte ponovo." }, { status: 400 });
   }
 
@@ -77,11 +77,17 @@ export async function POST(request: Request) {
     },
   });
 
-  const [settings, tiers, config, pool] = await Promise.all([
+  const [settings, tiers, config, pool, preferredMeetupZone] = await Promise.all([
     getSiteSettings(),
     getPriceTiers(),
     getPricingConfig(),
     getInventoryPool(),
+    payload.preferredMeetupZoneId
+      ? prisma.meetupZone.findUnique({
+          where: { id: payload.preferredMeetupZoneId },
+          select: { id: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   const pricing = resolvePricingSnapshot({
@@ -101,7 +107,7 @@ export async function POST(request: Request) {
       noteFromCustomer: payload.noteFromCustomer || undefined,
       quantityRequested: payload.quantityRequested,
       preferredContactMethod: payload.preferredContactMethod,
-      preferredMeetupZoneId: payload.preferredMeetupZoneId || undefined,
+      preferredMeetupZoneId: preferredMeetupZone?.id,
       source: payload.source || "website",
       landingPage: payload.landingPage || "/rezervacija",
       referrer: payload.referrer || undefined,
